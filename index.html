@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Pip Calculator with Currency Strength Meter</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .panel {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+        
+        h1, h2, h3 {
+            color: var(--dark-color);
+            margin-top: 0;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        select:focus, input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .results {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .result-value {
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        /* Strength Meter Styles */
+        .strength-container {
+            margin-top: 30px;
+        }
+        
+        .timeframe-selector {
+            display: flex;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 5px;
+        }
+        
+        .timeframe-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: calc(var(--border-radius) - 2px);
+            transition: var(--transition);
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .timeframe-btn.active {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: var(--primary-color);
+        }
+        
+        .strength-meters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+        }
+        
+        .currency-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: var(--transition);
+            text-align: center;
+        }
+        
+        .currency-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .currency-symbol {
+            font-size: 24px;
+            font-weight: 700;
+            margin-right: 10px;
+            color: var(--dark-color);
+        }
+        
+        .currency-name {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .meter-container {
+            height: 180px;
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .meter-bar {
+            width: 100%;
+            border-radius: var(--border-radius);
+            transition: height 1.5s ease-out, background-color 1.5s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .meter-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #95a5a6;
+        }
+        
+        .timeframe-strengths {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-top: 15px;
+        }
+        
+        .timeframe-strength {
+            height: 4px;
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+        
+        .risk-indicator {
+            height: 10px;
+            width: 100%;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .risk-level {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--danger-color));
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #7f8c8d;
+            font-size: 14px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+        }
+        
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .strength-meters {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Advanced Pip Calculator with Currency Strength Meter</h1>
+    
+    <div class="container">
+        <div class="panel">
+            <h2>Pip Calculator</h2>
+            <div class="form-group">
+                <label for="instrument">Instrument</label>
+                <select id="instrument">
+                    <option value="XAUUSD">XAUUSD (Gold vs US Dollar)</option>
+                    <option value="GBPUSD">GBPUSD (British Pound vs US Dollar)</option>
+                    <option value="EURUSD">EURUSD (Euro vs US Dollar)</option>
+                    <option value="GBPJPY">GBPJPY (British Pound vs Japanese Yen)</option>
+                    <option value="BTCUSD">BTCUSD (Bitcoin vs US Dollar)</option>
+                    <option value="NAS100">NAS100 (NASDAQ 100 Index)</option>
+                    <option value="US30">US30 (Dow Jones 30 Index)</option>
+                    <option value="USDCHF">USDCHF (US Dollar vs Swiss Franc)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="account-currency">Account Currency</label>
+                <select id="account-currency">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="JPY">JPY</option>
+                    <option value="CHF">CHF</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="position-size">Position Size (Units/Lots)</label>
+                <input type="number" id="position-size" value="1" step="0.01" min="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label for="entry-price">Entry Price</label>
+                <input type="number" id="entry-price" value="1.2000" step="0.0001" min="0.0001">
+            </div>
+            
+            <div class="form-group">
+                <label for="exit-price">Exit Price</label>
+                <input type="number" id="exit-price" value="1.2050" step="0.0001" min="0.0001">
+            </div>
+            
+            <button id="calculate-btn">Calculate Pip Value</button>
+            
+            <div class="results" id="pip-results">
+                <div class="result-item">
+                    <span>Pip Difference:</span>
+                    <span class="result-value" id="pip-difference">0</span>
+                </div>
+                <div class="result-item">
+                    <span>Pip Value:</span>
+                    <span class="result-value" id="pip-value">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span>Profit/Loss:</span>
+                    <span class="result-value" id="profit-loss">$0.00</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>Risk Management</h2>
+            <div class="form-group">
+                <label for="account-balance">Account Balance</label>
+                <input type="number" id="account-balance" value="10000" step="1" min="1">
+            </div>
+            
+            <div class="form-group">
+                <label for="risk-percentage">Risk Percentage per Trade</label>
+                <input type="number" id="risk-percentage" value="1" step="0.1" min="0.1" max="100">
+                <div class="risk-indicator">
+                    <div class="risk-level" id="risk-level"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="stop-loss-pips">Stop Loss (Pips)</label>
+                <input type="number" id="stop-loss-pips" value="50" step="1" min="1">
+            </div>
+            
+            <button id="calculate-risk-btn">Calculate Position Size</button>
+            
+            <div class="results" id="risk-results">
+                <div class="result-item">
+                    <span>Risk Amount:</span>
+                    <span class="result-value" id="risk-amount">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span>Recommended Position Size:</span>
+                    <span class="result-value" id="recommended-size">0.00</span>
+                </div>
+                <div class="result-item">
+                    <span>Pip Value at Recommended Size:</span>
+                    <span class="result-value" id="recommended-pip-value">$0.00</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel" style="grid-column: span 2;">
+            <h2>Multi-Timeframe Currency Strength Meter</h2>
+            
+            <div class="timeframe-selector">
+                <div class="timeframe-btn active" data-timeframe="30m">30 Min</div>
+                <div class="timeframe-btn" data-timeframe="1h">1 Hour</div>
+                <div class="timeframe-btn" data-timeframe="4h">4 Hour</div>
+                <div class="timeframe-btn" data-timeframe="daily">Daily</div>
+                <div class="timeframe-btn" data-timeframe="weekly">Weekly</div>
+            </div>
+            
+            <div class="strength-meters" id="strength-meters">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Courtesy of TechJoe Solutions | Professional Trading Tools
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize currency strength meter
+            initStrengthMeter();
+            generateRealisticData();
+            updateStrengthMeter('30m');
+            
+            // Set up event listeners
+            document.getElementById('calculate-btn').addEventListener('click', calculatePipValue);
+            document.getElementById('calculate-risk-btn').addEventListener('click', calculateRisk);
+            
+            // Update risk level indicator
+            document.getElementById('risk-percentage').addEventListener('input', updateRiskLevel);
+            updateRiskLevel();
+            
+            // Calculate initial values
+            calculatePipValue();
+            calculateRisk();
+            
+            // Timeframe selector
+            const timeframeBtns = document.querySelectorAll('.timeframe-btn');
+            timeframeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    timeframeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    updateStrengthMeter(this.dataset.timeframe);
+                });
+            });
+            
+            // Update strength meter with realistic timeframe behavior
+            setInterval(() => {
+                const activeTimeframe = document.querySelector('.timeframe-btn.active').dataset.timeframe;
+                updateWithRealisticBehavior();
+                updateStrengthMeter(activeTimeframe);
+            }, 3000);
+        });
+        
+        // Storage for our currency data
+        const currencyData = {
+            USD: { baseValue: 75, trend: 0, volatility: 3 },
+            EUR: { baseValue: 65, trend: 0, volatility: 3 },
+            GBP: { baseValue: 60, trend: 0, volatility: 4 },
+            JPY: { baseValue: 45, trend: 0, volatility: 5 },
+            CHF: { baseValue: 55, trend: 0, volatility: 3 },
+            XAU: { baseValue: 70, trend: 0, volatility: 6 },
+            BTC: { baseValue: 50, trend: 0, volatility: 15 }
+        };
+        
+        // Timeframe volatility multipliers
+        const timeframeVolatility = {
+            '30m': 1.5,
+            '1h': 1.2,
+            '4h': 0.8,
+            'daily': 0.3,
+            'weekly': 0.1
+        };
+        
+        function initStrengthMeter() {
+            const currencies = [
+                { code: 'USD', name: 'US Dollar' },
+                { code: 'EUR', name: 'Euro' },
+                { code: 'GBP', name: 'British Pound' },
+                { code: 'JPY', name: 'Japanese Yen' },
+                { code: 'CHF', name: 'Swiss Franc' },
+                { code: 'XAU', name: 'Gold' },
+                { code: 'BTC', name: 'Bitcoin' }
+            ];
+            
+            const container = document.getElementById('strength-meters');
+            
+            currencies.forEach(currency => {
+                const card = document.createElement('div');
+                card.className = 'currency-card';
+                
+                // Currency header
+                const header = document.createElement('div');
+                header.className = 'currency-header';
+                
+                const symbol = document.createElement('div');
+                symbol.className = 'currency-symbol';
+                symbol.textContent = currency.code;
+                
+                const name = document.createElement('div');
+                name.className = 'currency-name';
+                name.textContent = currency.name;
+                
+                header.appendChild(symbol);
+                header.appendChild(name);
+                
+                // Meter container
+                const meterContainer = document.createElement('div');
+                meterContainer.className = 'meter-container';
+                
+                const meterBar = document.createElement('div');
+                meterBar.className = 'meter-bar';
+                meterBar.id = `meter-${currency.code}`;
+                
+                meterContainer.appendChild(meterBar);
+                
+                // Meter labels
+                const meterLabels = document.createElement('div');
+                meterLabels.className = 'meter-labels';
+                meterLabels.innerHTML = '<span>0</span><span>50</span><span>100</span>';
+                
+                // Timeframe strengths
+                const timeframeContainer = document.createElement('div');
+                timeframeContainer.className = 'timeframe-strengths';
+                
+                ['30m', '1h', '4h', 'daily', 'weekly'].forEach(tf => {
+                    const tfStrength = document.createElement('div');
+                    tfStrength.className = 'timeframe-strength';
+                    tfStrength.id = `strength-${currency.code}-${tf}`;
+                    timeframeContainer.appendChild(tfStrength);
+                });
+                
+                // Assemble card
+                card.appendChild(header);
+                card.appendChild(meterContainer);
+                card.appendChild(meterLabels);
+                card.appendChild(timeframeContainer);
+                
+                container.appendChild(card);
+            });
+        }
+        
+        function generateRealisticData() {
+            // Set realistic base values and trends
+            Object.keys(currencyData).forEach(currency => {
+                currencyData[currency].baseValue = 30 + Math.random() * 50;
+                currencyData[currency].trend = Math.floor(Math.random() * 3) - 1;
+                currencyData[currency].volatility = 2 + Math.random() * 5;
+                if (currency === 'BTC') currencyData[currency].volatility = 10 + Math.random() * 10;
+                if (currency === 'XAU') currencyData[currency].volatility = 5 + Math.random() * 5;
+            });
+        }
+        
+        function updateWithRealisticBehavior() {
+            // Update each currency's trend and value
+            Object.keys(currencyData).forEach(currency => {
+                const data = currencyData[currency];
+                
+                // Occasionally change trend direction
+                if (Math.random() < 0.05) {
+                    if (Math.random() < 0.3) {
+                        data.trend *= -1;
+                    } else if (Math.random() < 0.4) {
+                        data.trend = 0;
+                    } else {
+                        data.trend = Math.min(1, Math.max(-1, data.trend + (Math.random() < 0.5 ? 0.1 : -0.1)));
+                    }
+                }
+                
+                // Calculate new value with proper timeframe behavior
+                const activeTimeframe = document.querySelector('.timeframe-btn.active').dataset.timeframe;
+                const timeframeMultiplier = timeframeVolatility[activeTimeframe];
+                const change = (data.trend * data.volatility * timeframeMultiplier) + 
+                               ((Math.random() - 0.5) * data.volatility * timeframeMultiplier);
+                
+                // Apply change with damping to prevent extreme values
+                data.baseValue = Math.max(10, Math.min(90, data.baseValue + change));
+                
+                // For weekly timeframe, make changes much more gradual
+                if (activeTimeframe === 'weekly') {
+                    data.baseValue = Math.max(30, Math.min(70, data.baseValue));
+                }
+            });
+        }
+        
+        function updateStrengthMeter(timeframe) {
+            Object.keys(currencyData).forEach(currency => {
+                const data = currencyData[currency];
+                let displayValue = data.baseValue;
+                
+                // Adjust display value based on timeframe
+                switch(timeframe) {
+                    case '30m':
+                        displayValue = data.baseValue + (Math.random() - 0.5) * data.volatility * 2;
+                        break;
+                    case '1h':
+                        displayValue = data.baseValue + (Math.random() - 0.5) * data.volatility * 1.5;
+                        break;
+                    case '4h':
+                        displayValue = data.baseValue + (Math.random() - 0.5) * data.volatility;
+                        break;
+                    case 'daily':
+                        displayValue = data.baseValue + (Math.random() - 0.5) * data.volatility * 0.5;
+                        break;
+                    case 'weekly':
+                        displayValue = data.baseValue + (Math.random() - 0.5) * data.volatility * 0.2;
+                        break;
+                }
+                
+                // Ensure values stay within bounds
+                displayValue = Math.max(5, Math.min(95, displayValue));
+                
+                // Update main meter
+                const meter = document.getElementById(`meter-${currency}`);
+                meter.style.height = `${displayValue}%`;
+                
+                // Set color based on strength
+                if (displayValue > 70) {
+                    meter.style.backgroundColor = 'var(--success-color)';
+                } else if (displayValue > 30) {
+                    meter.style.backgroundColor = 'var(--warning-color)';
+                } else {
+                    meter.style.backgroundColor = 'var(--danger-color)';
+                }
+                
+                // Update all timeframe indicators
+                ['30m', '1h', '4h', 'daily', 'weekly'].forEach(tf => {
+                    const tfStrength = document.getElementById(`strength-${currency}-${tf}`);
+                    if (!tfStrength) return;
+                    
+                    // Calculate strength for this timeframe
+                    let tfValue;
+                    switch(tf) {
+                        case '30m':
+                            tfValue = data.baseValue + (Math.random() - 0.5) * data.volatility * 2;
+                            break;
+                        case '1h':
+                            tfValue = data.baseValue + (Math.random() - 0.5) * data.volatility * 1.5;
+                            break;
+                        case '4h':
+                            tfValue = data.baseValue + (Math.random() - 0.5) * data.volatility;
+                            break;
+                        case 'daily':
+                            tfValue = data.baseValue + (Math.random() - 0.5) * data.volatility * 0.5;
+                            break;
+                        case 'weekly':
+                            tfValue = data.baseValue + (Math.random() - 0.5) * data.volatility * 0.2;
+                            break;
+                    }
+                    
+                    tfValue = Math.max(5, Math.min(95, tfValue));
+                    
+                    // Set color based on strength
+                    if (tfValue > 70) {
+                        tfStrength.style.backgroundColor = 'var(--success-color)';
+                    } else if (tfValue > 30) {
+                        tfStrength.style.backgroundColor = 'var(--warning-color)';
+                    } else {
+                        tfStrength.style.backgroundColor = 'var(--danger-color)';
+                    }
+                    
+                    // Highlight the active timeframe
+                    if (tf === timeframe) {
+                        tfStrength.style.opacity = '1';
+                        tfStrength.style.height = '8px';
+                    } else {
+                        tfStrength.style.opacity = '0.6';
+                        tfStrength.style.height = '4px';
+                    }
+                });
+            });
+        }
+        
+        function updateRiskLevel() {
+            const riskPercentage = parseFloat(document.getElementById('risk-percentage').value);
+            const riskLevel = document.getElementById('risk-level');
+            
+            riskLevel.style.width = `${riskPercentage}%`;
+            
+            // Change color based on risk level
+            if (riskPercentage > 5) {
+                riskLevel.style.background = 'var(--danger-color)';
+            } else if (riskPercentage > 2) {
+                riskLevel.style.background = 'var(--warning-color)';
+            } else {
+                riskLevel.style.background = 'var(--success-color)';
+            }
+        }
+        
+        function calculatePipValue() {
+            const instrument = document.getElementById('instrument').value;
+            const accountCurrency = document.getElementById('account-currency').value;
+            const positionSize = parseFloat(document.getElementById('position-size').value);
+            const entryPrice = parseFloat(document.getElementById('entry-price').value);
+            const exitPrice = parseFloat(document.getElementById('exit-price').value);
+            
+            // Get pip difference based on instrument type
+            let pipDifference, pipValue, profitLoss;
+            
+            if (instrument === 'XAUUSD') {
+                pipDifference = (exitPrice - entryPrice) / 0.01;
+                pipValue = 0.01 * positionSize;
+            } else if (instrument === 'BTCUSD') {
+                pipDifference = (exitPrice - entryPrice) / 0.1;
+                pipValue = 0.1 * positionSize;
+            } else if (instrument === 'NAS100' || instrument === 'US30') {
+                pipDifference = (exitPrice - entryPrice) / 0.1;
+                pipValue = 0.1 * positionSize;
+            } else if (instrument === 'GBPJPY') {
+                pipDifference = (exitPrice - entryPrice) / 0.01;
+                pipValue = 0.01 * positionSize;
+                
+                if (accountCurrency !== 'JPY') {
+                    const jpyRate = 0.0075;
+                    pipValue *= jpyRate;
+                }
+            } else {
+                pipDifference = (exitPrice - entryPrice) / 0.0001;
+                pipValue = 0.0001 * positionSize;
+            }
+            
+            profitLoss = pipDifference * pipValue;
+            
+            const currencySymbol = getCurrencySymbol(accountCurrency);
+            
+            document.getElementById('pip-difference').textContent = pipDifference.toFixed(1);
+            document.getElementById('pip-value').textContent = `${currencySymbol}${Math.abs(pipValue).toFixed(2)}`;
+            document.getElementById('profit-loss').textContent = `${profitLoss >= 0 ? '+' : ''}${currencySymbol}${profitLoss.toFixed(2)}`;
+        }
+        
+        function calculateRisk() {
+            const instrument = document.getElementById('instrument').value;
+            const accountCurrency = document.getElementById('account-currency').value;
+            const accountBalance = parseFloat(document.getElementById('account-balance').value);
+            const riskPercentage = parseFloat(document.getElementById('risk-percentage').value);
+            const stopLossPips = parseFloat(document.getElementById('stop-loss-pips').value);
+            
+            const riskAmount = accountBalance * (riskPercentage / 100);
+            const pipValueAtRisk = riskAmount / stopLossPips;
+            
+            let positionSize;
+            
+            if (instrument === 'XAUUSD') {
+                positionSize = pipValueAtRisk / 0.01;
+            } else if (instrument === 'BTCUSD') {
+                positionSize = pipValueAtRisk / 0.1;
+            } else if (instrument === 'NAS100' || instrument === 'US30') {
+                positionSize = pipValueAtRisk / 0.1;
+            } else if (instrument === 'GBPJPY') {
+                positionSize = pipValueAtRisk / 0.01;
+                
+                if (accountCurrency !== 'JPY') {
+                    const jpyRate = 0.0075;
+                    positionSize /= jpyRate;
+                }
+            } else {
+                positionSize = pipValueAtRisk / 0.0001;
+            }
+            
+            const currencySymbol = getCurrencySymbol(accountCurrency);
+            
+            document.getElementById('risk-amount').textContent = `${currencySymbol}${riskAmount.toFixed(2)}`;
+            document.getElementById('recommended-size').textContent = positionSize.toFixed(2);
+            document.getElementById('recommended-pip-value').textContent = `${currencySymbol}${pipValueAtRisk.toFixed(2)}`;
+        }
+        
+        function getCurrencySymbol(currency) {
+            switch(currency) {
+                case 'USD': return '$';
+                case 'EUR': return '€';
+                case 'GBP': return '£';
+                case 'JPY': return '¥';
+                case 'CHF': return 'CHF ';
+                default: return '$';
+            }
+        }
+    </script>
+</body>
+</html>
