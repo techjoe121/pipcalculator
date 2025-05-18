@@ -275,12 +275,12 @@
             <h2>Pip Calculator</h2>
             <div class="form-group">
                 <label for="instrument">Instrument</label>
-  <select id="instrument">
-  <!-- Existing options -->
+<select id="instrument">
+  <!-- Keep existing pairs -->
   <option value="XAUUSD">XAUUSD (Gold vs US Dollar)</option>
   <option value="GBPUSD">GBPUSD (British Pound vs US Dollar)</option>
   <option value="GBPCAD">GBPCAD (British Pound vs Canadian Dollar)</option>
-  <option value="GBPAUD">GBPAUD (British Pound vs Australian Dollar)</option>
+  <option value="GBPAUD">GBPAUD (British Pound vs Australian Dollar)</option> <!-- Added Here -->
   <option value="AUDUSD">AUDUSD (Australian Dollar vs US Dollar)</option>
   <option value="EURUSD">EURUSD (Euro vs US Dollar)</option>
   <option value="GBPJPY">GBPJPY (British Pound vs Japanese Yen)</option>
@@ -675,36 +675,26 @@
             
             // Get pip difference based on instrument type
             let pipDifference, pipValue, profitLoss;
-            
-            if (instrument === 'XAUUSD') {
-                pipDifference = (exitPrice - entryPrice) / 0.01;
-                pipValue = 0.01 * positionSize;
-            } else if (instrument === 'BTCUSD') {
-                pipDifference = (exitPrice - entryPrice) / 0.1;
-                pipValue = 0.1 * positionSize;
-            } else if (instrument === 'NAS100' || instrument === 'US30') {
-                pipDifference = (exitPrice - entryPrice) / 0.1;
-                pipValue = 0.1 * positionSize;
-         
-}
-            } else if (instrument === 'GBPJPY') {
-                pipDifference = (exitPrice - entryPrice) / 0.01;
-                pipValue = 0.01 * positionSize;
-                
-                if (accountCurrency !== 'JPY') {
-                    const jpyRate = 0.0075;
-                    pipValue *= jpyRate;
-                }
-            // For standard forex pairs (including GBPAUD)
-else if (['GBPUSD', 'GBPCAD', 'GBPAUD', 'AUDUSD', 'EURUSD', 'USDCHF'].includes(instrument)) {
+        function calculatePipValue() {
+  // ... existing code ...
+  
+  if (instrument === 'XAUUSD') {
+    // Gold calculation
+  } 
+  else if (instrument === 'BTCUSD' || instrument === 'NAS100' || instrument === 'US30') {
+    // Indices calculation
+  }
+  else if (instrument === 'GBPJPY') {
+    // JPY pair calculation
+  }
+  // Add this new condition for standard forex pairs:
+  else if (['GBPUSD', 'GBPCAD', 'GBPAUD', 'AUDUSD', 'EURUSD', 'USDCHF'].includes(instrument)) {
     pipDifference = (exitPrice - entryPrice) / 0.0001;
     pipValue = 0.0001 * positionSize;
+  }
+  
+  // ... rest of your function ...
 }
-            } else {
-                pipDifference = (exitPrice - entryPrice) / 0.0001;
-                pipValue = 0.0001 * positionSize;
-            }
-            
             profitLoss = pipDifference * pipValue;
             
             const currencySymbol = getCurrencySymbol(accountCurrency);
