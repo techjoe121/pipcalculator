@@ -275,31 +275,31 @@
             <h2>Pip Calculator</h2>
             <div class="form-group">
                 <label for="instrument">Instrument</label>
-<select id="instrument">
-  <!-- Keep existing pairs -->
-  <option value="XAUUSD">XAUUSD (Gold vs US Dollar)</option>
-  <option value="GBPUSD">GBPUSD (British Pound vs US Dollar)</option>
-  <option value="GBPCAD">GBPCAD (British Pound vs Canadian Dollar)</option>
-  <option value="GBPAUD">GBPAUD (British Pound vs Australian Dollar)</option> <!-- Added Here -->
-  <option value="AUDUSD">AUDUSD (Australian Dollar vs US Dollar)</option>
-  <option value="EURUSD">EURUSD (Euro vs US Dollar)</option>
-  <option value="GBPJPY">GBPJPY (British Pound vs Japanese Yen)</option>
-  <option value="BTCUSD">BTCUSD (Bitcoin vs US Dollar)</option>
-  <option value="NAS100">NAS100 (NASDAQ 100 Index)</option>
-  <option value="US30">US30 (Dow Jones 30 Index)</option>
-  <option value="USDCHF">USDCHF (US Dollar vs Swiss Franc)</option>
-</select>
+                <select id="instrument">
+                    <option value="XAUUSD">XAUUSD (Gold vs US Dollar)</option>
+                    <option value="GBPUSD">GBPUSD (British Pound vs US Dollar)</option>
+                    <option value="GBPCAD">GBPCAD (British Pound vs Canadian Dollar)</option>
+                    <option value="GBPAUD">GBPAUD (British Pound vs Australian Dollar)</option>
+                    <option value="AUDUSD">AUDUSD (Australian Dollar vs US Dollar)</option>
+                    <option value="EURUSD">EURUSD (Euro vs US Dollar)</option>
+                    <option value="GBPJPY">GBPJPY (British Pound vs Japanese Yen)</option>
+                    <option value="BTCUSD">BTCUSD (Bitcoin vs US Dollar)</option>
+                    <option value="NAS100">NAS100 (NASDAQ 100 Index)</option>
+                    <option value="US30">US30 (Dow Jones 30 Index)</option>
+                    <option value="USDCHF">USDCHF (US Dollar vs Swiss Franc)</option>
+                </select>
             </div>
             
             <div class="form-group">
                 <label for="account-currency">Account Currency</label>
                 <select id="account-currency">
                     <option value="USD">USD</option>
-                    <option value="AUD">AUD</option>
                     <option value="EUR">EUR</option>
                     <option value="GBP">GBP</option>
                     <option value="JPY">JPY</option>
                     <option value="CHF">CHF</option>
+                    <option value="AUD">AUD</option>
+                    <option value="CAD">CAD</option>
                 </select>
             </div>
             
@@ -435,11 +435,12 @@
         // Storage for our currency data
         const currencyData = {
             USD: { baseValue: 75, trend: 0, volatility: 3 },
-            AUD: { baseValue: 58, trend: 0, volatility: 4 },
             EUR: { baseValue: 65, trend: 0, volatility: 3 },
             GBP: { baseValue: 60, trend: 0, volatility: 4 },
             JPY: { baseValue: 45, trend: 0, volatility: 5 },
             CHF: { baseValue: 55, trend: 0, volatility: 3 },
+            AUD: { baseValue: 58, trend: 0, volatility: 4 },
+            CAD: { baseValue: 53, trend: 0, volatility: 3 },
             XAU: { baseValue: 70, trend: 0, volatility: 6 },
             BTC: { baseValue: 50, trend: 0, volatility: 15 }
         };
@@ -456,11 +457,12 @@
         function initStrengthMeter() {
             const currencies = [
                 { code: 'USD', name: 'US Dollar' },
-                { code: 'AUD', name: 'AUD' },
                 { code: 'EUR', name: 'Euro' },
                 { code: 'GBP', name: 'British Pound' },
                 { code: 'JPY', name: 'Japanese Yen' },
                 { code: 'CHF', name: 'Swiss Franc' },
+                { code: 'AUD', name: 'Australian Dollar' },
+                { code: 'CAD', name: 'Canadian Dollar' },
                 { code: 'XAU', name: 'Gold' },
                 { code: 'BTC', name: 'Bitcoin' }
             ];
@@ -678,26 +680,30 @@
             
             // Get pip difference based on instrument type
             let pipDifference, pipValue, profitLoss;
-        function calculatePipValue() {
-  // ... existing code ...
-  
-  if (instrument === 'XAUUSD') {
-    // Gold calculation
-  } 
-  else if (instrument === 'BTCUSD' || instrument === 'NAS100' || instrument === 'US30') {
-    // Indices calculation
-  }
-  else if (instrument === 'GBPJPY') {
-    // JPY pair calculation
-  }
-  // Add this new condition for standard forex pairs:
-  else if (['GBPUSD', 'GBPCAD', 'GBPAUD', 'AUDUSD', 'EURUSD', 'USDCHF'].includes(instrument)) {
-    pipDifference = (exitPrice - entryPrice) / 0.0001;
-    pipValue = 0.0001 * positionSize;
-  }
-  
-  // ... rest of your function ...
-}
+            
+            if (instrument === 'XAUUSD') {
+                pipDifference = (exitPrice - entryPrice) / 0.01;
+                pipValue = 0.01 * positionSize;
+            } 
+            else if (instrument === 'BTCUSD' || instrument === 'NAS100' || instrument === 'US30') {
+                pipDifference = (exitPrice - entryPrice) / 0.1;
+                pipValue = 0.1 * positionSize;
+            }
+            else if (instrument === 'GBPJPY') {
+                pipDifference = (exitPrice - entryPrice) / 0.01;
+                pipValue = 0.01 * positionSize;
+                
+                if (accountCurrency !== 'JPY') {
+                    const jpyRate = 0.0075; // Example rate for JPY to account currency
+                    pipValue *= jpyRate;
+                }
+            }
+            else if (['GBPUSD', 'GBPCAD', 'GBPAUD', 'AUDUSD', 'EURUSD', 'USDCHF'].includes(instrument)) {
+                // All standard forex pairs (0.0001 pip)
+                pipDifference = (exitPrice - entryPrice) / 0.0001;
+                pipValue = 0.0001 * positionSize;
+            }
+            
             profitLoss = pipDifference * pipValue;
             
             const currencySymbol = getCurrencySymbol(accountCurrency);
@@ -732,7 +738,7 @@
                     const jpyRate = 0.0075;
                     positionSize /= jpyRate;
                 }
-            } else {
+            } else if (['GBPUSD', 'GBPCAD', 'GBPAUD', 'AUDUSD', 'EURUSD', 'USDCHF'].includes(instrument)) {
                 positionSize = pipValueAtRisk / 0.0001;
             }
             
@@ -750,6 +756,8 @@
                 case 'GBP': return '£';
                 case 'JPY': return '¥';
                 case 'CHF': return 'CHF ';
+                case 'AUD': return 'A$';
+                case 'CAD': return 'C$';
                 default: return '$';
             }
         }
