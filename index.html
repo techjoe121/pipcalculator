@@ -295,6 +295,7 @@
                 <label for="account-currency">Account Currency</label>
                 <select id="account-currency">
                     <option value="USD">USD</option>
+                    <option value="AUD">AUD</option>
                     <option value="EUR">EUR</option>
                     <option value="GBP">GBP</option>
                     <option value="JPY">JPY</option>
@@ -434,6 +435,7 @@
         // Storage for our currency data
         const currencyData = {
             USD: { baseValue: 75, trend: 0, volatility: 3 },
+            AUD: { baseValue: 58, trend: 0, volatility: 4 },
             EUR: { baseValue: 65, trend: 0, volatility: 3 },
             GBP: { baseValue: 60, trend: 0, volatility: 4 },
             JPY: { baseValue: 45, trend: 0, volatility: 5 },
@@ -454,6 +456,7 @@
         function initStrengthMeter() {
             const currencies = [
                 { code: 'USD', name: 'US Dollar' },
+                { code: 'AUD', name: 'AUD' },
                 { code: 'EUR', name: 'Euro' },
                 { code: 'GBP', name: 'British Pound' },
                 { code: 'JPY', name: 'Japanese Yen' },
