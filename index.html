@@ -685,10 +685,7 @@
             } else if (instrument === 'NAS100' || instrument === 'US30') {
                 pipDifference = (exitPrice - entryPrice) / 0.1;
                 pipValue = 0.1 * positionSize;
-                else if (instrument === 'GBPAUD') {
-    pipDifference = (exitPrice - entryPrice) / 0.0001;
-    pipValue = 0.0001 * positionSize;
-    // Add any AUD-specific logic here if needed
+         
 }
             } else if (instrument === 'GBPJPY') {
                 pipDifference = (exitPrice - entryPrice) / 0.01;
@@ -698,6 +695,11 @@
                     const jpyRate = 0.0075;
                     pipValue *= jpyRate;
                 }
+            // For standard forex pairs (including GBPAUD)
+else if (['GBPUSD', 'GBPCAD', 'GBPAUD', 'AUDUSD', 'EURUSD', 'USDCHF'].includes(instrument)) {
+    pipDifference = (exitPrice - entryPrice) / 0.0001;
+    pipValue = 0.0001 * positionSize;
+}
             } else {
                 pipDifference = (exitPrice - entryPrice) / 0.0001;
                 pipValue = 0.0001 * positionSize;
