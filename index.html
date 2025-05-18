@@ -275,11 +275,12 @@
             <h2>Pip Calculator</h2>
             <div class="form-group">
                 <label for="instrument">Instrument</label>
-            <select id="instrument">
+  <select id="instrument">
   <!-- Existing options -->
   <option value="XAUUSD">XAUUSD (Gold vs US Dollar)</option>
   <option value="GBPUSD">GBPUSD (British Pound vs US Dollar)</option>
   <option value="GBPCAD">GBPCAD (British Pound vs Canadian Dollar)</option>
+  <option value="GBPAUD">GBPAUD (British Pound vs Australian Dollar)</option>
   <option value="AUDUSD">AUDUSD (Australian Dollar vs US Dollar)</option>
   <option value="EURUSD">EURUSD (Euro vs US Dollar)</option>
   <option value="GBPJPY">GBPJPY (British Pound vs Japanese Yen)</option>
@@ -684,6 +685,11 @@
             } else if (instrument === 'NAS100' || instrument === 'US30') {
                 pipDifference = (exitPrice - entryPrice) / 0.1;
                 pipValue = 0.1 * positionSize;
+                else if (instrument === 'GBPAUD') {
+    pipDifference = (exitPrice - entryPrice) / 0.0001;
+    pipValue = 0.0001 * positionSize;
+    // Add any AUD-specific logic here if needed
+}
             } else if (instrument === 'GBPJPY') {
                 pipDifference = (exitPrice - entryPrice) / 0.01;
                 pipValue = 0.01 * positionSize;
